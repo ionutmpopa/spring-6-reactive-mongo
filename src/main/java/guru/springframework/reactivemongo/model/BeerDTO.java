@@ -25,6 +25,7 @@ public class BeerDTO {
     @Size(min = 3, max = 255)
     private String beerName;
 
+    @NotBlank
     @Size(min = 1, max = 255)
     private String beerStyle;
 

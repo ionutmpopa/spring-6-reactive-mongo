@@ -34,7 +34,8 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
 
     private static String getErrorMessage(Throwable error) {
         String message;
-        if (error.getMessage().contains(VALIDATION_FAILED)) {
+        if (error.getMessage().contains(VALIDATION_FAILED) ||
+            error.getMessage().contains("400 BAD_REQUEST")) {
             message = VALIDATION_FAILED;
         } else {
             message = error.getMessage();
