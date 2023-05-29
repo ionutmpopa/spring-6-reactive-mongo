@@ -12,6 +12,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static guru.springframework.reactivemongo.web.fn.BeerRouterConfig.BEER_PATH;
@@ -27,18 +28,27 @@ public class BeerHandler {
     private final BeerService beerService;
     private final Validator validator;
 
-    private void validate(BeerDTO beerDTO){
+    private void validate(BeerDTO beerDTO) {
         Errors errors = new BeanPropertyBindingResult(beerDTO, "beerDto");
         validator.validate(beerDTO, errors);
 
-        if (errors.hasErrors()){
+        if (errors.hasErrors()) {
             throw new ServerWebInputException(errors.toString());
         }
     }
 
     public Mono<ServerResponse> listBeers(ServerRequest serverRequest) {
+
+        Flux<BeerDTO> beerDTOFlux;
+
+        if (serverRequest.queryParam("beerStyle").isPresent()) {
+            beerDTOFlux = beerService.findAllByBeerStyle(serverRequest.queryParam("beerStyle").get());
+        } else {
+            beerDTOFlux = beerService.listBeers();
+        }
+
         return ServerResponse.ok()
-            .body(beerService.listBeers(), BeerDTO.class);
+            .body(beerDTOFlux, BeerDTO.class);
     }
 
     public Mono<ServerResponse> getBeerById(ServerRequest serverRequest) {
